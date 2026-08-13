@@ -1,0 +1,12 @@
+{
+  "evaluation_available": 1,
+  "rows": 5000,
+  "injected_anomalies": 200,
+  "flagged_claims": 250,
+  "top_k": 200,
+  "true_positives_at_k": 88,
+  "precision_at_k": 0.44,
+  "recall_at_k": 0.44,
+  "roc_auc": 0.916614,
+  "average_precision": 0.479089
+}

@@ -1,0 +1,11 @@
+seed: 42
+synthetic_rows: 5000
+injected_anomaly_rate: 0.04
+model_contamination: 0.05
+flag_rate: 0.05
+top_k: 200
+raw_data_path: data/raw/synthetic_claims.csv
+scored_data_path: data/processed/scored_claims.csv
+model_path: artifacts/isolation_forest.joblib
+metrics_path: artifacts/metrics.json
+
