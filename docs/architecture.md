@@ -32,7 +32,7 @@ Injected scenarios provide deterministic pipeline tests and offline comparisons.
 
 Phase 1 assumes upstream feature computation. The scoring API accepts enriched utilization and provider-relative features. Phase 2 will add a feature service backed by persisted provider/member aggregates.
 
-## Phase 2 target architecture
+## CMS ingestion architecture
 
 ```mermaid
 flowchart TD
@@ -47,6 +47,8 @@ flowchart TD
     G --> I["Monitoring"]
 ```
 
+The CMS adapter supports inpatient, outpatient, carrier, and prescription-event files. It maps each source into the same validated ClaimGuard schema while preserving source lineage. See [CMS DE-SynPUF ingestion](cms_synpuf.md).
+
 ## Planned production controls
 
 - Dataset and model versioning
@@ -57,4 +59,3 @@ flowchart TD
 - Reviewer feedback capture
 - Subgroup performance monitoring
 - Access control and audit logging
-

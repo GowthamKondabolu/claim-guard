@@ -15,6 +15,7 @@ The Phase 1 implementation proves the full path from generated claims to a calla
 ## Current capabilities
 
 - Privacy-safe synthetic healthcare claims
+- CMS DE-SynPUF adapters for inpatient, outpatient, carrier, and prescription events
 - Evaluation-only injected anomaly scenarios
 - Schema and data-quality checks
 - Provider, beneficiary, cost, duplicate, utilization, and temporal features
@@ -72,6 +73,21 @@ The training command creates:
 - `artifacts/isolation_forest.joblib`
 - `artifacts/metrics.json`
 
+Convert an official CMS DE-SynPUF file and train without inventing labels:
+
+```bash
+claimguard ingest-cms \
+  --input data/cms/outpatient_claims.csv \
+  --claim-type outpatient \
+  --output data/processed/cms_outpatient_claims.csv
+
+claimguard train-csv \
+  --input data/processed/cms_outpatient_claims.csv \
+  --config configs/cms.yaml
+```
+
+See [CMS DE-SynPUF ingestion](docs/cms_synpuf.md) for mappings, source links, and limitations.
+
 Run the API after training:
 
 ```bash
@@ -124,13 +140,12 @@ Do not present the starter metrics as real-world fraud-detection performance. CM
 
 ## Roadmap
 
-1. Add CMS DE-SynPUF ingestion and column mapping.
-2. Replace local rolling features with PySpark window transformations.
-3. Add a transparent rule-based baseline and ensemble scoring.
-4. Add SHAP or feature-contribution explanations for a supervised benchmark.
-5. Build the investigator work-queue dashboard.
-6. Add MLflow experiment tracking, drift reports, and cloud deployment.
-7. Publish a detailed case study and live demo.
+1. Replace local rolling features with PySpark window transformations.
+2. Add a transparent rule-based baseline and ensemble scoring.
+3. Add SHAP or feature-contribution explanations for a supervised benchmark.
+4. Build the investigator work-queue dashboard.
+5. Add MLflow experiment tracking, drift reports, and cloud deployment.
+6. Publish a detailed case study and live demo.
 
 ## Responsible use
 
