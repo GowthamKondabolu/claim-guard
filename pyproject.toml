@@ -28,7 +28,7 @@ dev = [
   "ruff>=0.8",
 ]
 spark = [
-  "pyspark>=4.2,<4.3",
+  "pyspark[sql]>=4.2,<4.3",
 ]
 [project.scripts]
 claimguard = "claimguard.cli:main"
