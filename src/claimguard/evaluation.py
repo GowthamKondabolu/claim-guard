@@ -8,7 +8,11 @@ from sklearn.metrics import average_precision_score, roc_auc_score
 
 def evaluate_injected_anomalies(scored_claims: pd.DataFrame, top_k: int = 200) -> dict[str, float | int]:
     if "is_injected_anomaly" not in scored_claims:
-        return {"evaluation_available": 0}
+        return {
+            "evaluation_available": 0,
+            "rows": len(scored_claims),
+            "flagged_claims": int(scored_claims["is_flagged"].sum()),
+        }
 
     labels = scored_claims["is_injected_anomaly"].astype(int)
     scores = scored_claims["anomaly_score"].astype(float)
@@ -31,4 +35,3 @@ def evaluate_injected_anomalies(scored_claims: pd.DataFrame, top_k: int = 200) -
         "roc_auc": round(float(roc_auc), 6),
         "average_precision": round(float(average_precision), 6),
     }
-

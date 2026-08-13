@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pandas as pd
+
 from claimguard.config import Settings
 from claimguard.data.synthetic import generate_synthetic_claims
 from claimguard.evaluation import evaluate_injected_anomalies
@@ -10,12 +12,10 @@ from claimguard.features.build import build_claim_features
 from claimguard.models.anomaly import save_artifact, score_featured_claims, train_anomaly_model
 
 
-def run_training_pipeline(settings: Settings) -> dict[str, float | int]:
-    claims = generate_synthetic_claims(
-        rows=settings.synthetic_rows,
-        anomaly_rate=settings.injected_anomaly_rate,
-        seed=settings.seed,
-    )
+def run_claims_pipeline(
+    claims: pd.DataFrame,
+    settings: Settings,
+) -> dict[str, float | int]:
     raw_path = Path(settings.raw_data_path)
     raw_path.parent.mkdir(parents=True, exist_ok=True)
     claims.to_csv(raw_path, index=False)
@@ -39,3 +39,19 @@ def run_training_pipeline(settings: Settings) -> dict[str, float | int]:
     metrics_path.write_text(json.dumps(metrics, indent=2, allow_nan=False), encoding="utf-8")
     return metrics
 
+
+def run_training_pipeline(settings: Settings) -> dict[str, float | int]:
+    claims = generate_synthetic_claims(
+        rows=settings.synthetic_rows,
+        anomaly_rate=settings.injected_anomaly_rate,
+        seed=settings.seed,
+    )
+    return run_claims_pipeline(claims, settings)
+
+
+def run_csv_training_pipeline(
+    input_path: str | Path,
+    settings: Settings,
+) -> dict[str, float | int]:
+    claims = pd.read_csv(input_path, low_memory=False)
+    return run_claims_pipeline(claims, settings)
