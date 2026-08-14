@@ -80,14 +80,22 @@ def score_featured_claims(
 ) -> pd.DataFrame:
     if not 0 < flag_rate < 0.25:
         raise ValueError("flag_rate must be between 0 and 0.25")
+
     scored = featured_claims.copy()
     raw_scores = -artifact.pipeline.decision_function(scored[artifact.feature_names])
-    scored["anomaly_score"] = raw_scores
-    threshold = float(np.quantile(raw_scores, 1 - flag_rate))
-    scored["is_flagged"] = (scored["anomaly_score"] >= threshold).astype(int)
-    scored["score_percentile"] = scored["anomaly_score"].rank(pct=True).round(6)
-    return scored.sort_values("anomaly_score", ascending=False).reset_index(drop=True)
+    scored["model_anomaly_score"] = raw_scores
 
+    threshold = float(np.quantile(raw_scores, 1 - flag_rate))
+    scored["model_is_flagged"] = (
+        scored["model_anomaly_score"] >= threshold
+    ).astype(int)
+    scored["model_score_percentile"] = (
+        scored["model_anomaly_score"].rank(pct=True).round(6)
+    )
+    return scored.sort_values(
+        "model_anomaly_score",
+        ascending=False,
+    ).reset_index(drop=True)
 
 def save_artifact(artifact: ModelArtifact, path: str | Path) -> None:
     artifact_path = Path(path)

@@ -10,6 +10,8 @@ from claimguard.data.synthetic import generate_synthetic_claims
 from claimguard.evaluation import evaluate_injected_anomalies
 from claimguard.features.build import build_claim_features
 from claimguard.models.anomaly import save_artifact, score_featured_claims, train_anomaly_model
+from claimguard.models.ensemble import combine_model_and_rule_scores
+from claimguard.models.rules import score_rule_baseline
 
 
 def run_claims_pipeline(
@@ -26,7 +28,17 @@ def run_claims_pipeline(
         contamination=settings.model_contamination,
         seed=settings.seed,
     )
-    scored = score_featured_claims(artifact, featured, flag_rate=settings.flag_rate)
+    model_scored = score_featured_claims(
+        artifact,
+        featured,
+        flag_rate=settings.flag_rate,
+    )
+    rule_scored = score_rule_baseline(model_scored)
+    scored = combine_model_and_rule_scores(
+        rule_scored,
+        model_weight=settings.ensemble_model_weight,
+        flag_rate=settings.flag_rate,
+    )
     metrics = evaluate_injected_anomalies(scored, top_k=settings.top_k)
 
     scored_path = Path(settings.scored_data_path)

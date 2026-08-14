@@ -13,6 +13,7 @@ class Settings:
     injected_anomaly_rate: float = 0.04
     model_contamination: float = 0.05
     flag_rate: float = 0.05
+    ensemble_model_weight: float = 0.70
     top_k: int = 200
     raw_data_path: str = "data/raw/synthetic_claims.csv"
     scored_data_path: str = "data/processed/scored_claims.csv"
