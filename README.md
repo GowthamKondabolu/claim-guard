@@ -1,5 +1,8 @@
 # ClaimGuard
 
+[![Live Dashboard](https://img.shields.io/badge/Live_Dashboard-Open-FF4B4B?logo=streamlit&logoColor=white)](https://gowtham-claimguard.streamlit.app/)
+[![CI](https://github.com/GowthamKondabolu/claim-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/GowthamKondabolu/claim-guard/actions/workflows/ci.yml)
+
 **Explainable healthcare claims anomaly ranking for payment-integrity review.**
 
 ClaimGuard is a portfolio-grade machine-learning system that identifies unusual claim patterns and prioritizes them for human review. It combines privacy-safe synthetic data, reproducible Pandas and PySpark feature engineering, an unsupervised Isolation Forest, transparent business rules, calibrated ensemble ranking, comparative offline evaluation, and a FastAPI scoring service.
@@ -133,6 +136,8 @@ curl -X POST http://localhost:8000/v1/score \
 The response exposes the raw model anomaly score, its calibrated training-reference percentile, the transparent rule score, the combined ensemble score, the review flag, and triggered reason codes. `anomaly_score` remains a backward-compatible alias for `ensemble_score`.
 
 ## Investigator work queue
+
+**Live demo:** [Open the ClaimGuard Investigator Work Queue](https://gowtham-claimguard.streamlit.app/)
 
 ClaimGuard includes an interactive Streamlit dashboard designed for payment-integrity review workflows. It provides prioritized claim filtering, KPI summaries, score analysis, claim-level reason codes, CSV upload, and filtered-result export. A privacy-safe synthetic demo queue loads automatically, so the dashboard can be explored without real healthcare data.
 

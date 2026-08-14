@@ -1,5 +1,7 @@
 # Investigator work queue dashboard
 
+**Live application:** [https://gowtham-claimguard.streamlit.app/](https://gowtham-claimguard.streamlit.app/)
+
 ClaimGuard includes an interactive Streamlit dashboard for exploring prioritized healthcare claims and supporting human review. The dashboard presents ensemble rankings and reason codes as review signals—it does not determine fraud, waste, or abuse.
 
 ## Capabilities
