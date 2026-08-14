@@ -24,6 +24,8 @@ The current implementation supports privacy-safe generated claims and CMS DE-Syn
 - Transparent weighted rule baseline with explicit reason codes
 - Model-dominant ensemble ranking for review prioritization
 - Side-by-side evaluation of model, rules, and ensemble
+- Interactive Streamlit investigator work queue with filters, KPIs, claim drill-down, and score analysis
+- Scored-claims CSV upload, safe synthetic demo data, and filtered CSV export
 - Precision@K, Recall@K, ROC-AUC, and average-precision evaluation
 - Persisted model artifact with version metadata
 - FastAPI batch-scoring endpoint
@@ -49,6 +51,7 @@ flowchart LR
 
 ```text
 claim-guard/
+├── app.py                   # Streamlit investigator work-queue dashboard
 ├── configs/                 # Reproducible experiment settings
 ├── docs/                    # Architecture, roadmap, and model card
 ├── src/claimguard/
@@ -129,6 +132,17 @@ curl -X POST http://localhost:8000/v1/score \
 
 The response exposes the raw model anomaly score, its calibrated training-reference percentile, the transparent rule score, the combined ensemble score, the review flag, and triggered reason codes. `anomaly_score` remains a backward-compatible alias for `ensemble_score`.
 
+## Investigator work queue
+
+ClaimGuard includes an interactive Streamlit dashboard designed for payment-integrity review workflows. It provides prioritized claim filtering, KPI summaries, score analysis, claim-level reason codes, CSV upload, and filtered-result export. A privacy-safe synthetic demo queue loads automatically, so the dashboard can be explored without real healthcare data.
+
+### Run the dashboard locally
+
+```bash
+pip install -e ".[dashboard]"
+streamlit run app.py
+```
+
 ## Evaluation design
 
 The model is unsupervised. Synthetic anomaly labels are used only for offline evaluation and never become training features. Ranking metrics are emphasized because investigator capacity is limited and the business need is prioritization.
@@ -150,9 +164,8 @@ Do not present the benchmark metrics as real-world fraud-detection performance. 
 ## Roadmap
 
 1. Add SHAP or feature-contribution explanations for a supervised benchmark.
-2. Build the investigator work-queue dashboard.
-3. Add MLflow experiment tracking, drift reports, and cloud deployment.
-4. Publish a detailed case study and live demo.
+2. Add MLflow experiment tracking, drift reports, and cloud deployment.
+3. Publish a detailed case study and live demo.
 
 ## Responsible use
 

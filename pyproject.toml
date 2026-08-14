@@ -30,6 +30,9 @@ dev = [
 spark = [
   "pyspark[sql]>=4.2,<4.3",
 ]
+dashboard = [
+  "streamlit>=1.61,<2.0",
+]
 [project.scripts]
 claimguard = "claimguard.cli:main"
 
