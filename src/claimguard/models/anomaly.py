@@ -22,7 +22,7 @@ class ModelArtifact:
     feature_names: list[str]
     trained_at: str
     score_reference: list[float]
-    ensemble_model_weight: float = 0.70
+    ensemble_model_weight: float = 0.90
     ensemble_threshold: float | None = None
     version: str = "0.2.0"
 
@@ -31,7 +31,7 @@ def train_anomaly_model(
     featured_claims: pd.DataFrame,
     contamination: float = 0.05,
     seed: int = 42,
-    ensemble_model_weight: float = 0.70,
+    ensemble_model_weight: float = 0.90,
 ) -> ModelArtifact:
     if not 0 < contamination < 0.25:
         raise ValueError("contamination must be between 0 and 0.25")

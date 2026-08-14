@@ -6,7 +6,7 @@ import pandas as pd
 
 def combine_model_and_rule_scores(
     scored_claims: pd.DataFrame,
-    model_weight: float = 0.70,
+    model_weight: float = 0.90,
     flag_rate: float = 0.05,
 ) -> pd.DataFrame:
     if not 0.0 <= model_weight <= 1.0:
