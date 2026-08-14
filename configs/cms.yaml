@@ -3,6 +3,7 @@ synthetic_rows: 5000
 injected_anomaly_rate: 0.04
 model_contamination: 0.05
 flag_rate: 0.05
+ensemble_model_weight: 0.90
 top_k: 200
 raw_data_path: data/raw/cms_claims.csv
 scored_data_path: data/processed/cms_scored_claims.csv

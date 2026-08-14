@@ -47,8 +47,15 @@ def test_scoring_api_returns_rankable_claim_score(tmp_path: Path, monkeypatch) -
 
     assert response.status_code == 200
     body = response.json()
-    assert body["model_version"] == "0.1.0"
-    assert body["scores"][0]["claim_id"] == "CLM-DEMO-001"
-    assert "EXCESS_UNITS" in body["scores"][0]["reason_codes"]
+    assert body["model_version"] == "0.2.0"
+    claim_score = body["scores"][0]
+    assert claim_score["claim_id"] == "CLM-DEMO-001"
+    assert claim_score["rule_score"] == 0.65
+    assert 0.0 <= claim_score["model_score_percentile"] <= 1.0
+    assert 0.0 <= claim_score["ensemble_score"] <= 1.0
+    assert claim_score["anomaly_score"] == claim_score["ensemble_score"]
+    assert "HIGH_PROVIDER_RELATIVE_COST" in claim_score["reason_codes"]
+    assert "EXCESS_UNITS" in claim_score["reason_codes"]
+    assert "HIGH_PROVIDER_UTILIZATION" in claim_score["reason_codes"]
     get_model.cache_clear()
 
