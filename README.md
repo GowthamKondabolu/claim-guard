@@ -10,10 +10,11 @@ ClaimGuard is a portfolio-grade machine-learning system that identifies unusual 
 
 Payment-integrity teams review large claim volumes with limited investigator capacity. A useful system must do more than produce an anomaly score: it should support prioritization, provide understandable reasons, operate reproducibly, and make its limitations explicit.
 
-The Phase 1 implementation proves the full path from generated claims to a callable model service. Phase 2 will replace the generator with an adapter for CMS Medicare Claims Synthetic Public Use Files.
+The current implementation supports privacy-safe generated claims and CMS DE-SynPUF ingestion, with a Pandas baseline and parity-tested PySpark feature engineering for distributed claim-volume processing.
 
 ## Current capabilities
 
+- Parity-tested PySpark feature engineering with distributed 30-day windows
 - Privacy-safe synthetic healthcare claims
 - CMS DE-SynPUF adapters for inpatient, outpatient, carrier, and prescription events
 - Evaluation-only injected anomaly scenarios
@@ -31,8 +32,8 @@ The Phase 1 implementation proves the full path from generated claims to a calla
 
 ```mermaid
 flowchart LR
-    A["Synthetic claims\nCMS adapter next"] --> B["Validation"]
-    B --> C["Feature pipeline"]
+    A["Synthetic claims\nCMS DE-SynPUF"] --> B["Validation"]
+    B --> C["Pandas / PySpark\nfeature pipelines"]
     C --> D["Isolation Forest"]
     D --> E["Anomaly ranking"]
     E --> F["Reviewer API"]
@@ -58,10 +59,12 @@ claim-guard/
 
 ## Quick start
 
+Java 17 or newer is required to run the PySpark feature pipeline and Spark tests.
+
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -e ".[dev]"
+pip install -e ".[dev,spark]"
 claimguard train --config configs/base.yaml
 pytest -q
 ```
@@ -140,12 +143,11 @@ Do not present the starter metrics as real-world fraud-detection performance. CM
 
 ## Roadmap
 
-1. Replace local rolling features with PySpark window transformations.
-2. Add a transparent rule-based baseline and ensemble scoring.
-3. Add SHAP or feature-contribution explanations for a supervised benchmark.
-4. Build the investigator work-queue dashboard.
-5. Add MLflow experiment tracking, drift reports, and cloud deployment.
-6. Publish a detailed case study and live demo.
+1. Add a transparent rule-based baseline and ensemble scoring.
+2. Add SHAP or feature-contribution explanations for a supervised benchmark.
+3. Build the investigator work-queue dashboard.
+4. Add MLflow experiment tracking, drift reports, and cloud deployment.
+5. Publish a detailed case study and live demo.
 
 ## Responsible use
 
