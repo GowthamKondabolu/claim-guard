@@ -2,7 +2,7 @@
 
 **Explainable healthcare claims anomaly ranking for payment-integrity review.**
 
-ClaimGuard is a portfolio-grade machine-learning system that identifies unusual claim patterns and prioritizes them for human review. It combines privacy-safe synthetic data, reproducible feature engineering, an unsupervised anomaly model, offline evaluation, reason codes, and a FastAPI scoring service.
+ClaimGuard is a portfolio-grade machine-learning system that identifies unusual claim patterns and prioritizes them for human review. It combines privacy-safe synthetic data, reproducible Pandas and PySpark feature engineering, an unsupervised Isolation Forest, transparent business rules, calibrated ensemble ranking, comparative offline evaluation, and a FastAPI scoring service.
 
 > ClaimGuard does not determine fraud and does not make payment or clinical decisions. It ranks anomalies that may warrant review.
 
@@ -20,7 +20,10 @@ The current implementation supports privacy-safe generated claims and CMS DE-Syn
 - Evaluation-only injected anomaly scenarios
 - Schema and data-quality checks
 - Provider, beneficiary, cost, duplicate, utilization, and temporal features
-- Isolation Forest anomaly-ranking pipeline
+- Isolation Forest anomaly model with persisted score calibration
+- Transparent weighted rule baseline with explicit reason codes
+- Model-dominant ensemble ranking for review prioritization
+- Side-by-side evaluation of model, rules, and ensemble
 - Precision@K, Recall@K, ROC-AUC, and average-precision evaluation
 - Persisted model artifact with version metadata
 - FastAPI batch-scoring endpoint
@@ -35,9 +38,11 @@ flowchart LR
     A["Synthetic claims\nCMS DE-SynPUF"] --> B["Validation"]
     B --> C["Pandas / PySpark\nfeature pipelines"]
     C --> D["Isolation Forest"]
-    D --> E["Anomaly ranking"]
-    E --> F["Reviewer API"]
-    E --> G["Offline evaluation"]
+    C --> E["Explainable rules"]
+    D --> F["90/10 ensemble ranking"]
+    E --> F
+    F --> G["Reviewer API"]
+    F --> H["Comparative evaluation"]
 ```
 
 ## Repository structure
@@ -122,32 +127,32 @@ curl -X POST http://localhost:8000/v1/score \
   }'
 ```
 
+The response exposes the raw model anomaly score, its calibrated training-reference percentile, the transparent rule score, the combined ensemble score, the review flag, and triggered reason codes. `anomaly_score` remains a backward-compatible alias for `ensemble_score`.
+
 ## Evaluation design
 
 The model is unsupervised. Synthetic anomaly labels are used only for offline evaluation and never become training features. Ranking metrics are emphasized because investigator capacity is limited and the business need is prioritization.
 
-### Verified Phase 1 sample run
+### Verified synthetic benchmark
 
-Using the committed configuration and seed, the starter pipeline processed 5,000 synthetic claims with 200 injected evaluation anomalies:
+Using the committed configuration and seed, the pipeline processed 5,000 synthetic claims with 200 injected evaluation anomalies. The table compares each ranking strategy at the same 200-claim review capacity.
 
-| Metric | Result |
-|---|---:|
-| ROC-AUC | 0.9166 |
-| Average precision | 0.4791 |
-| Precision@200 | 0.4400 |
-| Recall@200 | 0.4400 |
+| Ranking strategy | Precision@200 | Recall@200 | ROC-AUC | Average precision |
+|---|---:|---:|---:|---:|
+| Isolation Forest | 0.440 | 0.440 | 0.9166 | 0.4791 |
+| Transparent rules | 0.190 | 0.190 | 0.7582 | 0.1805 |
+| 90/10 ML-rule ensemble | 0.460 | 0.460 | 0.9208 | 0.3896 |
 
-These results establish a reproducible engineering baseline. They should not be interpreted as real-world payment-integrity performance.
+The model-dominant ensemble recovered 92 of 200 injected scenarios in the top 200 claims, compared with 88 for the Isolation Forest alone. It improved Precision@200, Recall@200, and ROC-AUC, while average precision decreased. The 90/10 weight is a demonstration setting selected for this synthetic scenario and requires independent validation before any real-world use.
 
-Do not present the starter metrics as real-world fraud-detection performance. CMS synthetic data and the injected scenarios are development tools, not clinical or payment truth.
+Do not present the benchmark metrics as real-world fraud-detection performance. CMS synthetic data and the injected scenarios are development tools, not clinical or payment truth.
 
 ## Roadmap
 
-1. Add a transparent rule-based baseline and ensemble scoring.
-2. Add SHAP or feature-contribution explanations for a supervised benchmark.
-3. Build the investigator work-queue dashboard.
-4. Add MLflow experiment tracking, drift reports, and cloud deployment.
-5. Publish a detailed case study and live demo.
+1. Add SHAP or feature-contribution explanations for a supervised benchmark.
+2. Build the investigator work-queue dashboard.
+3. Add MLflow experiment tracking, drift reports, and cloud deployment.
+4. Publish a detailed case study and live demo.
 
 ## Responsible use
 
