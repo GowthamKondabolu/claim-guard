@@ -34,5 +34,9 @@ def test_training_pipeline_writes_artifacts(tmp_path: Path) -> None:
     assert set(comparison) == {"isolation_forest", "rules", "ensemble"}
     assert comparison["ensemble"]["rows"] == 500
     assert json.loads(Path(settings.metrics_path).read_text()) == metrics
-    assert load_artifact(settings.model_path).version == "0.1.0"
-
+    artifact = load_artifact(settings.model_path)
+    assert artifact.version == "0.2.0"
+    assert len(artifact.score_reference) == 500
+    assert artifact.ensemble_model_weight == 0.70
+    assert artifact.ensemble_threshold is not None
+    assert 0.0 <= artifact.ensemble_threshold <= 1.0

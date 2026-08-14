@@ -21,16 +21,22 @@ class ModelArtifact:
     pipeline: Pipeline
     feature_names: list[str]
     trained_at: str
-    version: str = "0.1.0"
+    score_reference: list[float]
+    ensemble_model_weight: float = 0.70
+    ensemble_threshold: float | None = None
+    version: str = "0.2.0"
 
 
 def train_anomaly_model(
     featured_claims: pd.DataFrame,
     contamination: float = 0.05,
     seed: int = 42,
+    ensemble_model_weight: float = 0.70,
 ) -> ModelArtifact:
     if not 0 < contamination < 0.25:
         raise ValueError("contamination must be between 0 and 0.25")
+    if not 0.0 <= ensemble_model_weight <= 1.0:
+        raise ValueError("ensemble_model_weight must be between 0 and 1")
 
     numeric_pipeline = Pipeline(
         steps=[
@@ -66,11 +72,31 @@ def train_anomaly_model(
         ]
     )
     pipeline.fit(featured_claims[MODEL_FEATURES])
+    training_scores = -pipeline.decision_function(featured_claims[MODEL_FEATURES])
+
     return ModelArtifact(
         pipeline=pipeline,
         feature_names=MODEL_FEATURES,
         trained_at=datetime.now(UTC).isoformat(),
+        score_reference=np.sort(training_scores).astype(float).tolist(),
+        ensemble_model_weight=ensemble_model_weight,
     )
+
+
+def model_score_percentiles(
+    artifact: ModelArtifact,
+    raw_scores: np.ndarray,
+) -> np.ndarray:
+    reference = np.asarray(artifact.score_reference, dtype=float)
+    if reference.size == 0:
+        raise ValueError("Model artifact has no score reference distribution")
+
+    percentiles = np.searchsorted(
+        reference,
+        np.asarray(raw_scores, dtype=float),
+        side="right",
+    )
+    return percentiles.astype(float) / reference.size
 
 
 def score_featured_claims(
@@ -89,13 +115,15 @@ def score_featured_claims(
     scored["model_is_flagged"] = (
         scored["model_anomaly_score"] >= threshold
     ).astype(int)
-    scored["model_score_percentile"] = (
-        scored["model_anomaly_score"].rank(pct=True).round(6)
+    scored["model_score_percentile"] = np.round(
+        model_score_percentiles(artifact, raw_scores),
+        6,
     )
     return scored.sort_values(
         "model_anomaly_score",
         ascending=False,
     ).reset_index(drop=True)
+
 
 def save_artifact(artifact: ModelArtifact, path: str | Path) -> None:
     artifact_path = Path(path)
@@ -108,4 +136,3 @@ def load_artifact(path: str | Path) -> ModelArtifact:
     if not isinstance(artifact, ModelArtifact):
         raise TypeError("Unexpected model artifact type")
     return artifact
-

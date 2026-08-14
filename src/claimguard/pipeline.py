@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from claimguard.config import Settings
@@ -30,6 +31,7 @@ def run_claims_pipeline(
         featured,
         contamination=settings.model_contamination,
         seed=settings.seed,
+        ensemble_model_weight=settings.ensemble_model_weight,
     )
     model_scored = score_featured_claims(
         artifact,
@@ -41,6 +43,9 @@ def run_claims_pipeline(
         rule_scored,
         model_weight=settings.ensemble_model_weight,
         flag_rate=settings.flag_rate,
+    )
+    artifact.ensemble_threshold = float(
+        np.quantile(scored["ensemble_score"], 1 - settings.flag_rate)
     )
     metrics = evaluate_injected_anomalies(scored, top_k=settings.top_k)
     ranking_comparison = compare_ranking_strategies(
