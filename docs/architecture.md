@@ -15,6 +15,7 @@ ClaimGuard is a review-prioritization system. Its output is an anomaly ranking w
 7. Rank claims by ensemble score and apply a configurable review-capacity threshold.
 8. Compare Isolation Forest, rule, and ensemble rankings against injected evaluation labels.
 9. Persist the calibrated model artifact and expose ensemble batch scoring through FastAPI.
+10. Present prioritized claims, score components, and reason codes through the interactive Streamlit investigator work queue.
 
 ## Key decisions
 
@@ -51,8 +52,9 @@ flowchart TD
     D --> F["Explainable weighted rules"]
     E --> G["90/10 ensemble ranking"]
     F --> G
-    G --> H["Reviewer API"]
-    G --> I["Comparative offline evaluation"]
+    G --> H["FastAPI scoring"]
+    G --> I["Investigator work queue"]
+    G --> J["Comparative offline evaluation"]
 ```
 
 The CMS adapter supports inpatient, outpatient, carrier, and prescription-event files. It maps each source into the same validated ClaimGuard schema while preserving source lineage. See [CMS DE-SynPUF ingestion](cms_synpuf.md).
@@ -60,6 +62,12 @@ The CMS adapter supports inpatient, outpatient, carrier, and prescription-event 
 ### Distributed feature engineering
 
 The PySpark builder uses value-based 30-day windows for provider and beneficiary claim counts, partitioned provider statistics for paid-amount z-scores, and distributed duplicate and temporal indicators. Parity tests ensure the Spark output preserves the existing model feature contract. The Pandas path remains the default local training implementation.
+
+### Investigator work queue
+
+The Streamlit dashboard converts scored claims into a prioritized human-review queue. Investigators can filter claims by type, review status, minimum ensemble score, and triggered reason codes; inspect model, rule, and ensemble score components; and export the filtered queue for further analysis.
+
+The dashboard loads a privacy-safe synthetic demonstration queue by default and also accepts ClaimGuard-scored CSV output. Queue preparation, validation, filtering, and summary calculations are separated into a tested data layer in `src/claimguard/work_queue.py`. The interface is intended for educational review demonstrations and must not be treated as a fraud determination system.
 
 ## Planned production controls
 

@@ -11,4 +11,5 @@ data/raw/*.csv
 data/processed/*.csv
 artifacts/*.joblib
 artifacts/*.json
+.DS_Store
 
