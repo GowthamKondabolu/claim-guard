@@ -26,6 +26,10 @@ class ScoreRequest(BaseModel):
 
 class ClaimScore(BaseModel):
     claim_id: str
+    model_anomaly_score: float
+    model_score_percentile: float
+    rule_score: float
+    ensemble_score: float
     anomaly_score: float
     is_flagged: bool
     reason_codes: list[str]
