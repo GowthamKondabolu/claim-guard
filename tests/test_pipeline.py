@@ -29,6 +29,10 @@ def test_training_pipeline_writes_artifacts(tmp_path: Path) -> None:
     assert metrics["rows"] == 500
     assert 0 <= metrics["precision_at_k"] <= 1
     assert 0 <= metrics["recall_at_k"] <= 1
+    comparison = metrics["ranking_comparison"]
+    assert isinstance(comparison, dict)
+    assert set(comparison) == {"isolation_forest", "rules", "ensemble"}
+    assert comparison["ensemble"]["rows"] == 500
     assert json.loads(Path(settings.metrics_path).read_text()) == metrics
     assert load_artifact(settings.model_path).version == "0.1.0"
 
